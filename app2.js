@@ -17,7 +17,7 @@ client.on("interactionCreate", async (interaction) => {
     if (!interaction.isChatInputCommand()) {
         return;
     }
-    if (interaction.commandName === "play") {
+    if (interaction.commandName === "p") {
         const query = interaction.options.getString("query");
         await interaction.deferReply();
         const member = await interaction.guild?.members.cache.get(interaction.user.id).voice;
@@ -44,14 +44,14 @@ client.on("interactionCreate", async (interaction) => {
             content: `The queue is now cleared.`,
         });
     }
-    else if (interaction.commandName === "connect") {
+    else if (interaction.commandName === "c") {
         const member = await interaction.guild?.members?.cache.get(interaction.user.id);
         await player.connect(interaction.guild, member?.voice.channelId);
         interaction.reply({
             content: `Connected to ${member?.voice?.channel}`,
         });
     }
-    else if (interaction.commandName === "disconnect") {
+    else if (interaction.commandName === "dc") {
         const member = await interaction.guild?.members?.cache.get(interaction.user.id);
         await player.leaveVoiceChannel(interaction?.guild);
         interaction.reply({
@@ -109,10 +109,12 @@ client.on("interactionCreate", async (interaction) => {
     }
     else if (interaction.commandName === "skip") {
         await interaction.deferReply();
-        await player.skip(interaction.guild, interaction);
-        interaction.reply({
-            content: "Skipped the song",
+        await player.skip(interaction.guild);
+        interaction.followUp({
+            content: 'Skipped'
+
         });
+        
     }
     else if (interaction.commandName === "previous_list") {
         const previousLists = await player.getQueue(interaction?.guild);
@@ -163,10 +165,11 @@ client.on("interactionCreate", async (interaction) => {
         });
     }
     else if (interaction.commandName === "stop") {
-        await player.stop(interaction.guild, true);
+        await player.leaveVoiceChannel(interaction?.guild);
         interaction.reply({
-            content: `Stop playing the track.`,
-        });
+            content: 'stoped'
+
+         })
     }
 });
 // Player events.
@@ -192,7 +195,7 @@ player.on("voiceConnected", (connection) => {
 client.on("ready", async () => {
     await client.guilds.cache.get("563894367555813401")?.commands.set([
         {
-            name: "play",
+            name: "p",
             description: "plays a song.",
             options: [
                 {
@@ -226,12 +229,12 @@ client.on("ready", async () => {
             ],
         },
         {
-            name: "connect",
+            name: "c",
             description: "Joins your voice channel.",
             type: discord_js_1.ApplicationCommandType.ChatInput,
         },
         {
-            name: "disconnect",
+            name: "dc",
             description: "Leaves your voice channel",
             type: discord_js_1.ApplicationCommandType.ChatInput,
         },
